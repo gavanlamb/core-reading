@@ -44,12 +44,3 @@ stages:
                         inputs:
                             command: logout
                             containerRegistry: '$(accountNamePrefix)-production-gcr'
-
-    -   stage: Publish
-        displayName: Publish Artifacts
-        jobs:
-            -   job: Terraform
-                displayName: Terraform
-                steps:
-                    -   publish: $(System.DefaultWorkingDirectory)/infrastructure
-                        artifact: infrastructure
