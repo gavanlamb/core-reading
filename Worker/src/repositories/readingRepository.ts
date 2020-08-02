@@ -11,7 +11,7 @@ const datastore = new Datastore({
 
 const saveRecord = async (topic: string, message: string): Promise<void> => {
   const kind = 'reading';
-  const taskKey = datastore.key([kind, name]);
+  const taskKey = datastore.key(kind);
   const data = JSON.parse(message);
   data['_topic'] = topic;
 
