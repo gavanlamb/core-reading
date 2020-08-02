@@ -9,7 +9,7 @@ metadata:
 data:
     APP_ID: "Core.Reading.Worker-{BUILD_NUMBER}"
     BUILD_NUMBER: "{BUILD_NUMBER}"
-    MQTT_URL: "10.24.8.255:1883"
+    MQTT_URL: "mqtt://10.24.8.255"
     NODE_ENV: "production"
     PROJECT_ID: "production-282111"
     SERVICE_NAME: "Core.Reading.Worker"
