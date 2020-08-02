@@ -93,7 +93,7 @@ stages:
                                     inputs:
                                         script: |
                                             sed -i 's/{BUILD_NUMBER}/$(Build.BuildId)/g' $(Pipeline.Workspace)/cicd/production.yml
-                                            sed -i 's/{GCLOUD_CLIENT_PRIVATE_KEY}/\'$(production.gcloud.private_key)\'/g' $(Pipeline.Workspace)/cicd/production.yml
+                                            sed -i 's/{GCLOUD_CLIENT_PRIVATE_KEY}/$(production.gcloud.private_key)/g' $(Pipeline.Workspace)/cicd/production.yml
                                 -   task: Kubernetes@1
                                     inputs:
                                         connectionType: 'Kubernetes Service Connection'
