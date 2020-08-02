@@ -11,10 +11,10 @@
   "scripts": {
     "start": "node dist/app.js",
     "compile": "ts-node build.ts && tsc",
-    "dev": "nodemon server/app.ts | pino-pretty",
-    "dev:debug": "nodemon --exec 'node -r ts-node/register --inspect-brk' server/app.ts | pino-pretty",
-    "lint": "eslint -c .eslintrc.js '{server, test}/**/*.{js,ts,tsx}' --quiet",
-    "lint:fix": "eslint -c .eslintrc.js '{server, test}/**/*.{js,ts,tsx}' --quiet --fix",
+    "dev": "nodemon src/app.ts | pino-pretty",
+    "dev:debug": "nodemon --exec 'node -r ts-node/register --inspect-brk' src/app.ts | pino-pretty",
+    "lint": "eslint -c .eslintrc.js '{src, test}/**/*.{js,ts,tsx}' --quiet",
+    "lint:fix": "eslint -c .eslintrc.js '{src, test}/**/*.{js,ts,tsx}' --quiet --fix",
     "test": "mocha test/**/*.ts --exit",
     "test:debug": "mocha --inspect-brk test/**/*.ts --exit"
   },

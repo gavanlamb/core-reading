@@ -5,17 +5,12 @@
 resources:
     -   repo: self
 
-variables:
-    tag: '$(Build.BuildId)'
-    imageName: 'core-reading'
-    accountNamePrefix: 'thoud'
-
 stages:
     -   stage: Build
         displayName: Build
         jobs:
-            -   job: Api
-                displayName: Api
+            -   job: API
+                displayName: API
                 pool:
                     vmImage: 'ubuntu-latest'
                 steps:
@@ -24,23 +19,89 @@ stages:
                         inputs:
                             dockerVersion: '17.09.0-ce'
                     -   task: Bash@3
-                        displayName: Build Api
+                        displayName: Build API
                         inputs:
                             targetType: 'inline'
-                            script: 'docker build --tag gcr.io/$(accountNamePrefix)-production/$(imageName)-api:$(TAG) .'
-
+                            script: 'docker build --tag gcr.io/production-282111/core-reading-api:$(Build.BuildId) ./API'
                     -   task: Docker@2
                         displayName: Prod - GCR - Login
                         inputs:
                             command: login
-                            containerRegistry: '$(accountNamePrefix)-production-gcr'
+                            containerRegistry: 'gcr-production'
                     -   task: Bash@3
                         displayName: Prod - Push
                         inputs:
                             targetType: 'inline'
-                            script: 'docker push gcr.io/$(accountNamePrefix)-production/$(imageName)-api:$(TAG)'
+                            script: 'docker push gcr.io/production-282111/core-reading-api:$(Build.BuildId)'
                     -   task: Docker@2
                         displayName: Prod - GCR - Logout
                         inputs:
                             command: logout
-                            containerRegistry: '$(accountNamePrefix)-production-gcr'
+                            containerRegistry: 'gcr-production'
+
+            -   job: Worker
+                displayName: Worker
+                pool:
+                    vmImage: 'ubuntu-latest'
+                steps:
+                    -   task: DockerInstaller@0
+                        displayName: Install Docker
+                        inputs:
+                            dockerVersion: '17.09.0-ce'
+                    -   task: Bash@3
+                        displayName: Build Worker
+                        inputs:
+                            targetType: 'inline'
+                            script: 'docker build --tag gcr.io/production-282111/core-reading-worker:$(Build.BuildId) ./Worker'
+                    -   task: Docker@2
+                        displayName: Prod - GCR - Login
+                        inputs:
+                            command: login
+                            containerRegistry: 'gcr-production'
+                    -   task: Bash@3
+                        displayName: Prod - Push
+                        inputs:
+                            targetType: 'inline'
+                            script: 'docker push gcr.io/production-282111/core-reading-worker:$(Build.BuildId)'
+                    -   task: Docker@2
+                        displayName: Prod - GCR - Logout
+                        inputs:
+                            command: logout
+                            containerRegistry: 'gcr-production'
+    -   stage: Publish
+        displayName: Publish Artifacts
+        jobs:
+            -   job: Manifests
+                displayName: Manifests
+                steps:
+                    -   publish: $(System.DefaultWorkingDirectory)/CICD
+                        artifact: cicd
+    -   stage: Production
+        displayName: Production
+        dependsOn: Publish
+        jobs:
+            -   deployment: Deploy
+                displayName: Deploy
+                environment: Production
+                pool:
+                    vmImage: 'Ubuntu-latest'
+                strategy:
+                    runOnce:
+                        deploy:
+                            steps:
+                                -   task: CmdLine@2
+                                    inputs:
+                                        script: |
+                                            sed -i 's/{BUILD_NUMBER}/$(Build.BuildId)/g' $(Pipeline.Workspace)/cicd/production.yml
+                                            sed -i 's/{GCLOUD_CLIENT_PRIVATE_KEY}/$(production.gcloud.private_key)/g' $(Pipeline.Workspace)/cicd/production.yml
+                                -   task: Kubernetes@1
+                                    inputs:
+                                        connectionType: 'Kubernetes Service Connection'
+                                        kubernetesServiceEndpoint: 'Production-default-1593872553116'
+                                        namespace: 'default'
+                                        command: 'apply'
+                                        useConfigurationFile: true
+                                        configuration: '$(Pipeline.Workspace)/cicd/production.yml'
+                                        secretType: 'dockerRegistry'
+                                        containerRegistryType: 'Container Registry'
+                                        dockerRegistryEndpoint: 'gcr-production'

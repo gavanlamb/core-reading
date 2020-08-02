@@ -1,6 +1,6 @@
 FROM node:14.4.0-alpine3.11 AS appbuild
 WORKDIR /usr/src/app
-COPY ./src/package.json ./
+COPY ./ ./
 RUN npm install
 COPY ./src ./
 RUN npm run lint

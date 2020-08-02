@@ -1,3 +1,5 @@
 /.idea/
-/src/node_modules/
-/src/dist/
+/API/src/node_modules/
+/API/src/dist/
+/Worker/node_modules/
+/Worker/dist/
