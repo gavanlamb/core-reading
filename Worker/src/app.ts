@@ -16,3 +16,8 @@ client.on('connect', () => {
 client.on('message', async (topic, message) => {
   await saveRecord(topic, message?.toString() ?? '{}');
 });
+
+
+client.on('error', async (error) => {
+  logger.error(`Error encountered: ${error}`);
+});
