@@ -9,19 +9,30 @@ const datastore = new Datastore({
   },
 });
 
-const saveRecord = async (topic: string, message: string): Promise<void> => {
-  const kind = 'reading';
-  const taskKey = datastore.key(kind);
-  let data;
-  if (message && message.startsWith('{') && message.endsWith('}')) {
-    data = JSON.parse(message);
-    data['_topic'] = topic;
-  } else {
-    data = {
-      message: message,
-      _topic: topic,
-    };
+const isJson = (str: string) => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
   }
+  return true;
+};
+
+const saveRecord = async (topic: string, message: string): Promise<void> => {
+  const taskKey = datastore.key(topic);
+  let data;
+  if (message) {
+    if (isJson(message)) {
+      data = JSON.parse(message);
+    } else {
+      data = {
+        message: message,
+      };
+    }
+  } else {
+    data = {};
+  }
+  data._date = new Date().toUTCString();
 
   const entity = {
     key: taskKey,
