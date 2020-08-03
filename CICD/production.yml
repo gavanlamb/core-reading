@@ -81,18 +81,6 @@ spec:
                         -   containerPort: 1883
                             protocol: TCP
                             name: mqtt
-                    readinessProbe:
-                        tcpSocket:
-                            port: 1883
-                        initialDelaySeconds: 30
-                        periodSeconds: 60
-                        failureThreshold: 60
-                    livenessProbe:
-                        tcpSocket:
-                            port: 1883
-                        initialDelaySeconds: 30
-                        periodSeconds: 60
-                        failureThreshold: 60
 ---
 kind: Service
 apiVersion: v1
@@ -104,25 +92,5 @@ spec:
         app: core-reading-worker
     ports:
         -   protocol: TCP
-            port: 1884
-            targetPort: 1883
----
-apiVersion: autoscaling/v2beta1
-kind: HorizontalPodAutoscaler
-metadata:
-    name: core-reading-worker-hpa-sd9s
-    namespace: default
-    labels:
-        app: core-reading-worker
-spec:
-    scaleTargetRef:
-        kind: Deployment
-        name: core-reading-worker
-        apiVersion: apps/v1
-    minReplicas: 1
-    maxReplicas: 5
-    metrics:
-        -   type: Resource
-            resource:
-                name: cpu
-                targetAverageUtilization: 80
+            port: 1883
+            targetPort: mqtt
