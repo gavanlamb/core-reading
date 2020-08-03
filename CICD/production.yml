@@ -104,7 +104,7 @@ spec:
         app: core-reading-worker
     ports:
         -   protocol: TCP
-            port: 1883
+            port: 1884
             targetPort: 1883
 ---
 apiVersion: autoscaling/v2beta1
